@@ -3,6 +3,7 @@ package hw2;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 //REQUIRED: FIFO
 //REQUIRED: second chance (clock)
@@ -21,7 +22,7 @@ public class Simulation {
 	public final int NUM_PAGES = 1048576;
 	public final long NUM_REQUESTS = 1000000;
 	
-	public final double RATE_PARAMETER = 1;
+	public final double RATE_PARAMETER = 0.6;
 	
 	private long faults;
 	private LinkedList<Page> request = new LinkedList<Page>();
@@ -39,7 +40,9 @@ public class Simulation {
 		if (type == Request.EQUIPROBABLE)
 			for (long l = 0; l < NUM_REQUESTS; l++)
 				request.add(new Page(System.currentTimeMillis(), (int) (Math.random() * NUM_PAGES)));
-		else if (type == Request.EXPONENTIAL) {}
+		else if (type == Request.EXPONENTIAL) {
+			/
+		}
 		else if (type == Request.BIASED) {}			//TODO these ones		
 	}
 	
@@ -58,24 +61,32 @@ public class Simulation {
 		System.out.println((double) faults / NUM_REQUESTS);
 	}
 	
-	public void secondChance() {
+	public void secondChance() {					//TODO unify these, they're basically the same thing
 		faults = 0;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		for (int l = 0; l < request.size(); l++) {
 			if (memory.size() >= NUM_FRAMES) {
+				faults++;
 				while (!memory.peek().secondChance) {
 					memory.peek().secondChance = true;
 					memory.peek().timestamp = System.currentTimeMillis();
 				}
-				
+				memory.poll();
 			}
 			memory.add(request.poll());
 		}
 		
 		System.out.println((double) faults / NUM_REQUESTS);
 	}
+	
+	public void optimal() {
+		//TODO
+	}
 
+	public long geometric() {
+		return (long) (Math.log(1 - Math.random()) / Math.log(1 - RATE_PARAMETER));
+	}
 
 	
 
