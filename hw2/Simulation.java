@@ -44,16 +44,17 @@ public class Simulation {
 	
 	public void generateProcesses(Request type) {
 		request.clear();
+		Random r = new Random();
 		
 		if (type == Request.EQUIPROBABLE)
 			for (long l = 0; l < NUM_REQUESTS; l++)		
-				request.add(new Page(l, (int) (Math.random() * NUM_PAGES)));	//maybe loss of precision from Math.random TODO
+				request.add(new Page(l, r.nextInt(NUM_PAGES) + 1));	//maybe loss of precision from Math.random TODO
 		else if (type == Request.EXPONENTIAL)
 			for (long l = 0; l < NUM_REQUESTS; l++)		
 				request.add(new Page(l, geometric()));
 		else if (type == Request.BIASED)
 			for (long l = 0; l < NUM_REQUESTS; l++)			//some hard coded numbers here TODO
-				request.add(new Page(l, Math.random() < 0.8 ? ((int) (Math.random() * 5)) + 100 : geometric()));
+				request.add(new Page(l, r.nextFloat() < 0.8 ? r.nextInt(5) + 100 : geometric()));
 	}
 	
 	public void FIFO() {
@@ -107,7 +108,7 @@ public class Simulation {
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
 				memory.poll();
-
+			}
 			memory.add(current);
 		}
 		
