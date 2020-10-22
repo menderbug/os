@@ -48,6 +48,9 @@ public class Simulation {
 		if (type == Request.EQUIPROBABLE)
 			for (long l = 0; l < NUM_REQUESTS; l++)		
 				request.add(new Page(l, (int) (Math.random() * NUM_PAGES)));	//maybe loss of precision from Math.random TODO
+		/* possibly use Random class?
+		Random randomno = new Random();
+		request.add(new Page(l, randomno.nextInt*(NUM_PAGES));*/
 		else if (type == Request.EXPONENTIAL)
 			for (long l = 0; l < NUM_REQUESTS; l++)		
 				request.add(new Page(l, geometric()));
@@ -121,6 +124,27 @@ public class Simulation {
 	public int geometric() {
 		int k = (int) (Math.log(Math.random()) / -LAMBDA);
 		return k;	//TODO this needs work
+		//other option for geometric
+		Random randomno = new Random();
+		int j = randomno.nextInt(510);
+		switch (j){
+			case j<256: 
+				return randomno.nextInt(131072);
+			case 256<=j<384:
+				return (randomno.nextInt(131072) + 131072);
+			case 384<=j<448:
+				return (randomno.nextInt(131072) + 2*131072);
+			case 448<=j<480:
+				return (randomno.nextInt(131072) + 3*131072);
+			case 480<=j<496:
+				return (randomno.nextInt(131072) + 4*131072);
+			case 496<=j<504:
+				return (randomno.nextInt(131072) + 5*131072);
+			case 504<=j<508:
+				return (randomno.nextInt(131072) + 6*131072);
+			case 508<=j<510:
+				return (randomno.nextInt(131072) + 7*131072);
+		}
 	}
 
 	
