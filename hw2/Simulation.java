@@ -85,7 +85,7 @@ public class Simulation {
 				faults++;
 				while (!memory.peek().secondChance) {
 					memory.peek().secondChance = true;
-					memory.peek().timestamp = (max++);
+					memory.peek().timestamp = max++;
 				}
 				memory.poll();
 			}
@@ -101,13 +101,13 @@ public class Simulation {
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		for (int l = 0; l < request.size(); l++) {
-			Page current = request.poll();
+			Page current = request.poll();	//only LRU difference from FIFO, i think
+			current.timestamp = max++;
 			if (memory.contains(current)) continue;
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
 				memory.poll();
-			}
-			current.timestamp = max++;			//only LRU difference from FIFO, i think
+
 			memory.add(current);
 		}
 		
