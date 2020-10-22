@@ -46,12 +46,14 @@ public class Simulation {
 		request.clear();
 		
 		if (type == Request.EQUIPROBABLE)
-			for (long l = 0; l < NUM_REQUESTS; l++)		//TODO current time can be too similar 
-				request.add(new Page(l, (int) (Math.random() * NUM_PAGES)));
-		else if (type == Request.EXPONENTIAL) {
-			//TODO
-		}
-		else if (type == Request.BIASED) {}			//TODO these ones		
+			for (long l = 0; l < NUM_REQUESTS; l++)		
+				request.add(new Page(l, (int) (Math.random() * NUM_PAGES)));	//maybe loss of precision from Math.random TODO
+		else if (type == Request.EXPONENTIAL)
+			for (long l = 0; l < NUM_REQUESTS; l++)		
+				request.add(new Page(l, geometric()));
+		else if (type == Request.BIASED)
+			for (long l = 0; l < NUM_REQUESTS; l++)		
+				request.add(new Page(l, Math.random() < 0.8 ? ((int) (Math.random() * 5)) + 100 : geometric()));
 	}
 	
 	public void FIFO() {algorithm(false);}
@@ -83,10 +85,10 @@ public class Simulation {
 		//TODO
 	}
 
-	/*public long geometric() {
-		long k = (long) (Math.log(Math.random()) / -LAMBDA);
-		if (k < 36)
-	}*/
+	public int geometric() {
+		int k = (int) (Math.log(Math.random()) / -LAMBDA);
+		return k;	//TODO this needs work
+	}
 
 	
 
