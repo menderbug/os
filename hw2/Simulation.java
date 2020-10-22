@@ -114,7 +114,47 @@ public class Simulation {
 		
 		System.out.println((double) faults / NUM_REQUESTS);
 	}
+	public void LFU() {
+		faults = 0;
+		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
+		for (int l = 0; l < request.size(); l++) {
+			Page current = request.poll();
+			if (memory.contains(current)) {
+				current.timestamp++; //timestamp is being used as frequency
+				continue;
+			}
+			if (memory.size() >= NUM_FRAMES) {
+				faults++;
+				memory.poll();
+			}
+			current.timestamp++;
+			memory.add(current);
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+	}
+		
+	public void MFU() {
+		faults = 0;
+		PriorityQueue<Page> memory = new PriorityQueue<Page>();
+		
+		for (int l = 0; l < request.size(); l++) {
+			Page current = request.poll();
+			if (memory.contains(current)) {
+				current.timestamp--; //timestamp is being used as frequency
+				continue;
+			}
+			if (memory.size() >= NUM_FRAMES) {
+				faults++;
+				memory.poll();
+			}
+			memory.add(current);
+			current.timestamp--;
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+	}
 	public void optimal() {
 		//TODO
 	}
