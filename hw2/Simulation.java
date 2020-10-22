@@ -52,15 +52,26 @@ public class Simulation {
 			for (long l = 0; l < NUM_REQUESTS; l++)		
 				request.add(new Page(l, geometric()));
 		else if (type == Request.BIASED)
-			for (long l = 0; l < NUM_REQUESTS; l++)		
+			for (long l = 0; l < NUM_REQUESTS; l++)			//some hard coded numbers here TODO
 				request.add(new Page(l, Math.random() < 0.8 ? ((int) (Math.random() * 5)) + 100 : geometric()));
 	}
 	
-	public void FIFO() {algorithm(false);}
+	public void FIFO() {
+		faults = 0;
+		PriorityQueue<Page> memory = new PriorityQueue<Page>();
+		
+		for (int l = 0; l < request.size(); l++) {
+			if (memory.size() >= NUM_FRAMES) {
+				faults++;
+				memory.poll();
+			}
+			memory.add(request.poll());
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+	}
 	
-	public void secondChance() {algorithm(true);}
-	
-	public void algorithm(boolean secondChance) {	//base FIFO algorithm, has second chance variant
+	public void secondChance() {		//repeat code but i think its fine for clarity?
 		faults = 0;
 		long max = NUM_REQUESTS;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
@@ -68,14 +79,31 @@ public class Simulation {
 		for (int l = 0; l < request.size(); l++) {
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
-				if (secondChance)
-					while (!memory.peek().secondChance) {
-						memory.peek().secondChance = true;
-						memory.peek().timestamp = (max++);
-					}
+				while (!memory.peek().secondChance) {
+					memory.peek().secondChance = true;
+					memory.peek().timestamp = (max++);
+				}
 				memory.poll();
 			}
 			memory.add(request.poll());
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+	}
+	
+	public void LRU() {
+		faults = 0;
+		long max = NUM_REQUESTS;
+		PriorityQueue<Page> memory = new PriorityQueue<Page>();
+		
+		for (int l = 0; l < request.size(); l++) {
+			if (memory.size() >= NUM_FRAMES) {
+				faults++;
+				memory.poll();
+			}
+			Page current = request.poll();
+			current.timestamp = max++;
+			memory.add(current);
 		}
 		
 		System.out.println((double) faults / NUM_REQUESTS);
