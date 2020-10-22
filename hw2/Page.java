@@ -9,6 +9,14 @@ public class Page implements Comparable<Page> {
 		this.timestamp = timestamp;
 		this.ID = ID;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Page && ID == ((Page) o).ID;
+	}
+	
+	@Override
+	public int hashCode() {return ID;}
 
 	@Override
 	public int compareTo(Page other) {

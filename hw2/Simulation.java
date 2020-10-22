@@ -61,6 +61,7 @@ public class Simulation {
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		for (int l = 0; l < request.size(); l++) {
+			if (memory.contains(request.peek())) continue;
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
 				memory.poll();
@@ -77,6 +78,7 @@ public class Simulation {
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		for (int l = 0; l < request.size(); l++) {
+			if (memory.contains(request.peek())) continue;
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
 				while (!memory.peek().secondChance) {
@@ -97,6 +99,7 @@ public class Simulation {
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		for (int l = 0; l < request.size(); l++) {
+			if (memory.contains(request.peek())) continue;
 			if (memory.size() >= NUM_FRAMES) {
 				faults++;
 				memory.poll();
