@@ -83,7 +83,10 @@ public class Simulation {
 		
 		while (!request.isEmpty()) {
 			Page current = request.poll();
-			if (memory.contains(current)) continue;
+			if (memory.contains(current)) {
+				memory.stream().filter(p -> p.equals(current)).findAny().get().secondChance = false;
+				continue;
+			}
 			faults++;
 			if (memory.size() >= NUM_FRAMES)
 				while (!memory.peek().secondChance) {
