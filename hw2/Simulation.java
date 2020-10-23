@@ -1,7 +1,9 @@
 package hw2;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 
@@ -61,13 +63,12 @@ public class Simulation {
 		faults = 0;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
-		for (int l = 0; l < request.size(); l++) {
+		while (!request.isEmpty()) {
 			Page current = request.poll();
 			if (memory.contains(current)) continue;
-			if (memory.size() >= NUM_FRAMES) {
-				faults++;
+			faults++;
+			if (memory.size() >= NUM_FRAMES)
 				memory.poll();
-			}
 			memory.add(current);
 		}
 		
@@ -79,17 +80,16 @@ public class Simulation {
 		long max = NUM_REQUESTS;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
-		for (int l = 0; l < request.size(); l++) {
+		while (!request.isEmpty()) {
 			Page current = request.poll();
 			if (memory.contains(current)) continue;
-			if (memory.size() >= NUM_FRAMES) {
-				faults++;
+			faults++;
+			if (memory.size() >= NUM_FRAMES)
 				while (!memory.peek().secondChance) {
 					memory.peek().secondChance = true;
 					memory.peek().timestamp = max++;
 				}
 				memory.poll();
-			}
 			memory.add(current);
 		}
 		
@@ -101,14 +101,13 @@ public class Simulation {
 		long max = NUM_REQUESTS;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
-		for (int l = 0; l < request.size(); l++) {
+		while (!request.isEmpty()) {
 			Page current = request.poll();	//only LRU difference from FIFO, i think
 			current.timestamp = max++;
 			if (memory.contains(current)) continue;
-			if (memory.size() >= NUM_FRAMES) {
-				faults++;
+			faults++;
+			if (memory.size() >= NUM_FRAMES)
 				memory.poll();
-			}
 			memory.add(current);
 		}
 		
@@ -116,10 +115,33 @@ public class Simulation {
 	}
 		
 	public void optimal() {
-		//TODO
+		
+		Map<Integer, LinkedList<Long>> ordering = new HashMap<Integer, LinkedList<Long>>();
+		while (!request.isEmpty()) {
+			Page current = request.pop();
+			ordering.putIfAbsent(current.ID, new LinkedList<Long>());
+			ordering.get(current.ID).add(current.timestamp);					
+		}
+		
+		faults = 0;
+		PriorityQueue<Page> memory = new PriorityQueue<Page>();
+		
+		while (!request.isEmpty()) {
+			Page current = null;		//TODO placeholder
+			//ordering.values().stream().sorted((l1, l2) -> )
+			if (memory.contains(current)) continue;
+			faults++;
+			if (memory.size() >= NUM_FRAMES)
+				memory.poll();
+			memory.add(current);
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+		
+		
 	}
 
-	public int geometric() {
+	private int geometric() {
 		int k = (int) (Math.log(Math.random()) / -LAMBDA);
 		return k;	//TODO this needs work
 	}
