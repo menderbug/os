@@ -1,5 +1,6 @@
 package hw2;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,23 +117,29 @@ public class Simulation {
 		
 	public void optimal() {
 		
-		Map<Integer, LinkedList<Long>> ordering = new HashMap<Integer, LinkedList<Long>>();
+		Map<Integer, LinkedList<Page>> ordering = new HashMap<Integer, LinkedList<Page>>();
 		while (!request.isEmpty()) {
 			Page current = request.pop();
-			ordering.putIfAbsent(current.ID, new LinkedList<Long>());
-			ordering.get(current.ID).add(current.timestamp);					
+			ordering.putIfAbsent(current.ID, new LinkedList<Page>());
+			ordering.get(current.ID).add(current);					
 		}
 		
 		faults = 0;
-		PriorityQueue<Page> memory = new PriorityQueue<Page>();
+		List<Page> memory = new LinkedList<Page>();
 		
 		while (!request.isEmpty()) {
-			Page current = null;		//TODO placeholder
-			//ordering.values().stream().sorted((l1, l2) -> )
+			Page current = ordering.values().stream().sorted(Comparator.comparing(l -> l.peek())).findFirst().get().pop();
 			if (memory.contains(current)) continue;
 			faults++;
-			if (memory.size() >= NUM_FRAMES)
-				memory.poll();
+			if (memory.size() >= NUM_FRAMES) {
+				Page victim = null;
+				for (Page page : memory)
+					if (ordering.containsKey(page.ID)) {
+						victim = page;
+						break;
+					}
+				if (victim == null) {/* TODO basically now it compares by timestamp ugghhhh */}
+			}
 			memory.add(current);
 		}
 		
