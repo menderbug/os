@@ -21,7 +21,7 @@ public class Simulation {
 	
 	
 	//public final int FAULT_TIME = 10;		//TODO optional parameter
-	public final int NUM_FRAMES = 5;
+	public final int NUM_FRAMES = 6;
 	public final int NUM_PAGES = 20;
 	public final long NUM_REQUESTS = 10000;
 	
@@ -33,7 +33,7 @@ public class Simulation {
 	public static void main(String[] args) {
 		
 		Simulation sim = new Simulation();
-		sim.generateProcesses(Request.EXPONENTIAL);
+		sim.generateProcesses(Request.BIASED);
 		sim.FIFO(new LinkedList<Page>(sim.requestMaster));
 		sim.secondChance(new LinkedList<Page>(sim.requestMaster));
 		
@@ -101,8 +101,11 @@ public class Simulation {
 		
 		while (!request.isEmpty()) {
 			Page current = request.poll();	//only LRU difference from FIFO, i think
-			current.timestamp = max++;
-			if (memory.contains(current)) continue;
+			if (memory.contains(current)) {
+				memory.removeIf(p -> p.equals(current));
+				memory.add(new Page(max++, current.ID));
+				continue;
+			}
 			faults++;
 			if (memory.size() >= NUM_FRAMES)
 				memory.poll();
