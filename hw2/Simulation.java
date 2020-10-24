@@ -88,13 +88,12 @@ public class Simulation {
 				continue;
 			}
 			faults++;
-			if (memory.size() >= NUM_FRAMES) {
+			if (memory.size() >= NUM_FRAMES)
 				while (!memory.peek().secondChance) {
 					memory.peek().secondChance = true;
 					memory.peek().timestamp = max++;
 				}
 				memory.poll();
-			}
 			memory.add(current);
 		}
 		
@@ -151,7 +150,61 @@ public class Simulation {
 		
 		
 	}
-
+	public void LFU() {
+		
+		Map<Integer, LinkedList<Page>> ordering = new HashMap<Integer, LinkedList<Page>>();
+		faults = 0;
+		List<Page> memory = new LinkedList<Page>();
+		
+		while (!request.isEmpty()) {
+			Page current = request.poll;
+			ordering.putIfAbsent(current.ID, new LinkedList<Page>());
+			ordering.get(current.ID).add(current);
+			if (memory.contains(current)) continue;
+			faults++;
+			if (memory.size() >= NUM_FRAMES) {
+				Page victim = memory[0];
+				for (Page page : memory){
+					if (ordering.get(current.ID) < ordering.get(victim.ID){
+						victim = page;
+					}
+				}
+				victim.timestamp = 0;
+				memory.poll();
+			}
+			memory.add(current);
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+		
+	public void MFU() {
+		
+		Map<Integer, LinkedList<Page>> ordering = new HashMap<Integer, LinkedList<Page>>();
+		faults = 0;
+		List<Page> memory = new LinkedList<Page>();
+		
+		while (!request.isEmpty()) {
+			Page current = request.poll;
+			ordering.putIfAbsent(current.ID, new LinkedList<Page>());
+			ordering.get(current.ID).add(current);
+			if (memory.contains(current)) continue;
+			faults++;
+			if (memory.size() >= NUM_FRAMES) {
+				Page victim = memory[0];
+				for (Page page : memory){
+					if (ordering.get(current.ID) > ordering.get(victim.ID){
+						victim = page;
+					}
+				}
+				victim.timestamp = 0;
+				memory.poll();
+			}
+			memory.add(current);
+		}
+		
+		System.out.println((double) faults / NUM_REQUESTS);
+		
+	}
 	private int geometric() {
 		int k = (int) (Math.log(Math.random()) / -LAMBDA);
 		return k;	//TODO this needs work
