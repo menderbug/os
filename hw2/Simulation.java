@@ -32,16 +32,16 @@ public class Simulation {
 	
 	public static void main(String[] args) {
 		
-		System.out.println(Math.log(0.0000000000000001) / -1);
-		
-		/*Simulation sim = new Simulation();
-		
-		long l = System.currentTimeMillis();
-		System.out.println(sim.geometric());
-		System.out.println(System.currentTimeMillis() - l);*/
-		
-		//sim.generateProcesses(Simulation.Request.EQUIPROBABLE);
-		//sim.FIFO();
+		Simulation sim = new Simulation();
+		int count = 0;
+		for (int i = 0; i < Integer.MAX_VALUE; i++) {
+			int k = sim.exponential();
+			if (k > 30) {
+				System.out.println(k);
+				count++;
+			}
+		}
+		System.out.println("THE COUNT IS: " + count);
 	}
 	
 	
@@ -54,10 +54,10 @@ public class Simulation {
 				request.add(new Page(l, r.nextInt(NUM_PAGES) + 1));	//maybe loss of precision from Math.random TODO
 		else if (type == Request.EXPONENTIAL)
 			for (long l = 0; l < NUM_REQUESTS; l++)		
-				request.add(new Page(l, geometric()));
+				request.add(new Page(l, exponential()));
 		else if (type == Request.BIASED)
 			for (long l = 0; l < NUM_REQUESTS; l++)			//some hard coded numbers here TODO
-				request.add(new Page(l, r.nextFloat() < 0.8 ? r.nextInt(5) + 100 : geometric()));
+				request.add(new Page(l, r.nextFloat() < 0.8 ? r.nextInt(5) + 100 : exponential()));
 	}
 	
 	public void FIFO() {
@@ -153,9 +153,9 @@ public class Simulation {
 		
 	}
 
-	private int geometric() {
-		int k = (int) (Math.log(Math.random()) / -LAMBDA);
-		return k > NUM_PAGES ? geometric() : k;	//TODO this needs work
+	private int exponential() {
+		int k = (int) Math.ceil((Math.log(Math.random()) / -LAMBDA));
+		return k > NUM_PAGES ? exponential() : k;	//TODO this needs work
 	}
 
 	
