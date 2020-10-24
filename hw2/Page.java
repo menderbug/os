@@ -3,7 +3,7 @@ package hw2;
 public class Page implements Comparable<Page> {
 	public long timestamp;
 	public int ID;
-	public boolean secondChance = false;
+	public boolean hasSecondChance = false;
 	
 	public Page(long timestamp, int ID) {
 		this.timestamp = timestamp;
