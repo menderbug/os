@@ -88,12 +88,13 @@ public class Simulation {
 				continue;
 			}
 			faults++;
-			if (memory.size() >= NUM_FRAMES)
+			if (memory.size() >= NUM_FRAMES) {
 				while (!memory.peek().secondChance) {
 					memory.peek().secondChance = true;
 					memory.peek().timestamp = max++;
 				}
 				memory.poll();
+			}
 			memory.add(current);
 		}
 		
