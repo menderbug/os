@@ -21,9 +21,9 @@ public class Simulation {
 	
 	
 	//public final int FAULT_TIME = 10;		//TODO optional parameter
-	public final int NUM_FRAMES = 4096;
-	public final int NUM_PAGES = 1048576;
-	public final long NUM_REQUESTS = 1000000;
+	public final int NUM_FRAMES = 5;
+	public final int NUM_PAGES = 10;
+	public final long NUM_REQUESTS = 1000;
 	
 	public final double LAMBDA = 0.6;
 	
@@ -33,15 +33,8 @@ public class Simulation {
 	public static void main(String[] args) {
 		
 		Simulation sim = new Simulation();
-		int count = 0;
-		for (int i = 0; i < Integer.MAX_VALUE; i++) {
-			int k = sim.exponential();
-			if (k > 30) {
-				System.out.println(k);
-				count++;
-			}
-		}
-		System.out.println("THE COUNT IS: " + count);
+		sim.generateProcesses(Request.EQUIPROBABLE);
+		sim.FIFO();
 	}
 	
 	
@@ -65,6 +58,7 @@ public class Simulation {
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		while (!request.isEmpty()) {
+			System.out.println(memory.size());
 			Page current = request.poll();
 			if (memory.contains(current)) continue;
 			faults++;
