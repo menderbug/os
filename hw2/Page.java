@@ -23,5 +23,6 @@ public class Page implements Comparable<Page> {
 		return Long.compare(timestamp, other.timestamp);
 	}
 	
-	
+	@Override
+	public String toString() {return ID + ":\ttime=" + timestamp;}	
 }

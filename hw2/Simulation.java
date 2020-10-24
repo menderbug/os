@@ -23,7 +23,7 @@ public class Simulation {
 	//public final int FAULT_TIME = 10;		//TODO optional parameter
 	public final int NUM_FRAMES = 6;
 	public final int NUM_PAGES = 20;
-	public final long NUM_REQUESTS = 10000;
+	public final long NUM_REQUESTS = 1000;
 	
 	public final double LAMBDA = 0.6;
 	
@@ -33,9 +33,10 @@ public class Simulation {
 	public static void main(String[] args) {
 		
 		Simulation sim = new Simulation();
-		sim.generateProcesses(Request.BIASED);
+		sim.generateProcesses(Request.EXPONENTIAL);
 		sim.FIFO(new LinkedList<Page>(sim.requestMaster));
 		sim.secondChance(new LinkedList<Page>(sim.requestMaster));
+		sim.optimal(new LinkedList<Page>(sim.requestMaster));
 		
 	}
 	
@@ -126,9 +127,9 @@ public class Simulation {
 		
 		faults = 0;
 		List<Page> memory = new LinkedList<Page>();
-		
-		while (!request.isEmpty()) {
-			Page current = ordering.values().stream().sorted(Comparator.comparing(l -> l.peek())).findFirst().get().pop();
+
+		while (ordering.values().stream().flatMap(l -> l.stream()).count() != 0) {
+			Page current = ordering.values().stream().filter(l -> !l.isEmpty()).sorted(Comparator.comparing(l -> l.peek())).findFirst().get().poll();
 			if (memory.contains(current)) continue;
 			faults++;
 			if (memory.size() >= NUM_FRAMES) {
@@ -139,7 +140,9 @@ public class Simulation {
 						break;
 					}
 				if (victim == null) {/* TODO basically now it compares by timestamp ugghhhh */}
-				for (Page p : memory) if (p.equals(victim)) memory.remove(p);
+				if (victim == null) break;
+				for (int i = memory.size() - 1; i >= 0; i--) 
+					if (memory.get(i).equals(victim)) memory.remove(i);
 			}
 			memory.add(current);
 		}
