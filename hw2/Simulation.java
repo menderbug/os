@@ -143,6 +143,7 @@ public class Simulation {
 						break;
 					}
 				if (victim == null) {/* TODO basically now it compares by timestamp ugghhhh */}
+				for (Page p : memory) if (p.equals(victim)) memory.remove(p);
 			}
 			memory.add(current);
 		}
@@ -154,7 +155,7 @@ public class Simulation {
 
 	private int geometric() {
 		int k = (int) (Math.log(Math.random()) / -LAMBDA);
-		return k;	//TODO this needs work
+		return k > NUM_PAGES ? geometric() : k;	//TODO this needs work
 	}
 
 	
