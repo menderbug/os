@@ -21,9 +21,9 @@ public class Simulation {
 	
 	
 	//public final int FAULT_TIME = 10;		//TODO optional parameter
-	public final int NUM_FRAMES = 6;
-	public final int NUM_PAGES = 20;
-	public final long NUM_REQUESTS = 1000;
+	public final int NUM_FRAMES = 4096;
+	public final int NUM_PAGES = 4096 * 8;
+	public final long NUM_REQUESTS = 1000000;
 	
 	public final double LAMBDA = 0.6;
 	
@@ -33,10 +33,24 @@ public class Simulation {
 	public static void main(String[] args) {
 		
 		Simulation sim = new Simulation();
+		
+		System.out.println("For a system with " + sim.NUM_FRAMES + " frames and " + sim.NUM_PAGES + 
+				" pages, simulating " + sim.NUM_REQUESTS + " requests:\n");
+		System.out.println("\n\nUSING AN EQUIPROBABLE DISTRIBUTION");
+		sim.generateProcesses(Request.EQUIPROBABLE);
+		sim.FIFO(new LinkedList<Page>(sim.requestMaster));
+		sim.secondChance(new LinkedList<Page>(sim.requestMaster));
+		sim.LRU(new LinkedList<Page>(sim.requestMaster));
+		System.out.println("\n\nUSING AN EXPONENTIAL DISTRIBUTION");
 		sim.generateProcesses(Request.EXPONENTIAL);
 		sim.FIFO(new LinkedList<Page>(sim.requestMaster));
 		sim.secondChance(new LinkedList<Page>(sim.requestMaster));
-		sim.optimal(new LinkedList<Page>(sim.requestMaster));
+		sim.LRU(new LinkedList<Page>(sim.requestMaster));
+		System.out.println("\n\nUSING A BIASED DISTRIBUTION");
+		sim.generateProcesses(Request.BIASED);
+		sim.FIFO(new LinkedList<Page>(sim.requestMaster));
+		sim.secondChance(new LinkedList<Page>(sim.requestMaster));
+		sim.LRU(new LinkedList<Page>(sim.requestMaster));
 		
 	}
 	
@@ -57,54 +71,57 @@ public class Simulation {
 	}
 	
 	public void FIFO(LinkedList<Page> request) {
+		System.out.println("First-in, First-out Algorithm");
 		faults = 0;
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		while (!request.isEmpty()) {
 			Page current = request.poll();
 			if (memory.contains(current)) continue;
-			faults++;
-			if (memory.size() >= NUM_FRAMES)
-				memory.poll();
+			faults++;	//if fault necessary
+			if (memory.size() >= NUM_FRAMES)	//as this is a priority queue, earliest automatically removed
+				memory.poll();	//removes from memory
 			memory.add(current);
 		}
 		
-		System.out.println((double) faults / NUM_REQUESTS);
+		metrics(faults);
 	}
 	
-	public void secondChance(LinkedList<Page> request) {		//repeat code but i think its fine for clarity?
+	public void secondChance(LinkedList<Page> request) {	
+		System.out.println("Second Chance Algorithm");
 		faults = 0;
-		long max = NUM_REQUESTS;
+		long max = NUM_REQUESTS; //stores max timestamp
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		while (!request.isEmpty()) {
 			Page current = request.poll();
-			if (memory.contains(current)) {
+			if (memory.contains(current)) {	//if used, gains second chance
 				memory.stream().filter(p -> p.equals(current)).findAny().get().hasSecondChance = true;
-				continue;
+				continue;	
 			}
-			faults++;
+			faults++;	//if fault necessary
 			if (memory.size() >= NUM_FRAMES) {
 				while (memory.peek().hasSecondChance)
-					memory.add(new Page(max++, memory.poll().ID));
-				memory.poll();
+					memory.add(new Page(max++, memory.poll().ID));	//removal and readding simulates circular queue
+				memory.poll();	//removes from memory
 			}
 			memory.add(current);
 		}
 		
-		System.out.println((double) faults / NUM_REQUESTS);
+		metrics(faults);
 	}
 	
 	public void LRU(LinkedList<Page> request) {
+		System.out.println("Least Recently Used Algorithm");
 		faults = 0;
-		long max = NUM_REQUESTS;
+		long max = NUM_REQUESTS; //stores max timestamp
 		PriorityQueue<Page> memory = new PriorityQueue<Page>();
 		
 		while (!request.isEmpty()) {
 			Page current = request.poll();	//only LRU difference from FIFO, i think
 			if (memory.contains(current)) {
-				memory.removeIf(p -> p.equals(current));
-				memory.add(new Page(max++, current.ID));
+				memory.removeIf(p -> p.equals(current));	//removes and readds to refresh priorityqueue sorting
+				memory.add(new Page(max++, current.ID));	//updates timestamp when used, so earliest timestamp reflects LRU 
 				continue;
 			}
 			faults++;
@@ -113,10 +130,11 @@ public class Simulation {
 			memory.add(current);
 		}
 		
-		System.out.println((double) faults / NUM_REQUESTS);
+		metrics(faults);
 	}
 		
-	public void optimal(LinkedList<Page> request) {
+	public void optimal(LinkedList<Page> request) {	//unfortunately, could not be finished in time. Work is left here for grader curiosity.
+		System.out.println("Optimal Algorithm");
 		
 		Map<Integer, LinkedList<Page>> ordering = new HashMap<Integer, LinkedList<Page>>();
 		while (!request.isEmpty()) {
@@ -139,7 +157,7 @@ public class Simulation {
 						victim = page;
 						break;
 					}
-				if (victim == null) {/* TODO basically now it compares by timestamp ugghhhh */}
+				if (victim == null) {/* TODO  */}
 				if (victim == null) break;
 				for (int i = memory.size() - 1; i >= 0; i--) 
 					if (memory.get(i).equals(victim)) memory.remove(i);
@@ -147,14 +165,20 @@ public class Simulation {
 			memory.add(current);
 		}
 		
-		System.out.println((double) faults / NUM_REQUESTS);
+		metrics(faults);
 		
 		
+	}
+	
+	private void metrics(long faults) {
+		System.out.println("Number of hits:\t\t" + (NUM_REQUESTS - faults));
+		System.out.println("Number of misses:\t" + faults);
+		System.out.println("Fault percentage:\t" + faults * 100.0 / NUM_REQUESTS + "%\n");
 	}
 
 	private int exponential() {
 		int k = (int) Math.ceil((Math.log(Math.random()) / -LAMBDA));
-		return k > NUM_PAGES ? exponential() : k;	//TODO this needs work
+		return k > NUM_PAGES ? exponential() : k;	//retries in the event of out of bounds error	
 	}
 
 	

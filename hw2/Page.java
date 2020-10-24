@@ -24,5 +24,5 @@ public class Page implements Comparable<Page> {
 	}
 	
 	@Override
-	public String toString() {return ID + ":\ttime=" + timestamp;}	
+	public String toString() {return ID + ":\time=" + timestamp;}	
 }
